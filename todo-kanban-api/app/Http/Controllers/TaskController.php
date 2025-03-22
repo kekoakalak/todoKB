@@ -12,6 +12,13 @@ class TaskController extends Controller
 {
     public function index()
     {
+
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'No user logged in'], 200);
+        }
+
         return response()->json(auth()->user()->tasks);
     }
 
@@ -23,7 +30,15 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
         ]);
 
-        $task = auth()->user()->tasks()->create($validated);
+        // Manually fetch the first user for testing
+        $user = User::first();
+
+        if (!$user) {
+            return response()->json(['error' => 'No users found'], 400);
+        }
+        $task = $user->tasks()->create($validated); //TEMPORARY
+
+        // $task = auth()->user()->tasks()->create(attributes: $validated);
         return response()->json($task, 201);
     }
 
