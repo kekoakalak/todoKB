@@ -39,7 +39,7 @@ class TaskController extends Controller
         $task = $user->tasks()->create($validated); //TEMPORARY
 
         // $task = auth()->user()->tasks()->create(attributes: $validated);
-        return response()->json($task, 201);
+        return response()->json($task, 201); //HTTP: Successful Insert
     }
 
     public function update(Request $request, Task $task)
@@ -53,7 +53,7 @@ class TaskController extends Controller
             'status' => 'sometimes|required|in:todo,in_progress,done',
         ]);
         $task->update($validated);
-        return response()->json($task);
+        return response()->json($task, 200); // HTTP: OK
     }
 
     public function destroy(Task $task)
@@ -62,6 +62,6 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->delete();
-        return response()->json(null, 204);
+        return response()->json(null, 204); //HTTP: Successful but nNo Content
     }
 }
