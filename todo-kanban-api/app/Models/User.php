@@ -3,42 +3,33 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+// The User model extends Authenticatable and implements JWTSubject for JWT-based authentication
+class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    // Specifies the attributes that are mass assignable (can be set using create() or fill())
+    protected $fillable = ['name', 'email', 'password'];
+    protected $hidden = ['password'];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();  // This function returns an array of claims that can be added to the token.
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    //This function returns an array of claims that can be added to the token.
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);  // Define a one-to-many relationship with the Task model.
+
+    }
+
+
 }
