@@ -62,6 +62,6 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->delete();
-        return response()->json(null, 204); //HTTP: Successful but nNo Content
+        return response()->json(null, 204); //HTTP: Successful but No Content
     }
 }
