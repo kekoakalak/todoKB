@@ -27,7 +27,7 @@ export default defineComponent({
 
         const register = async() => {
             await store.dispatch('register', {name: name.value, email: email.value, password: password.value});
-            router.push('/');
+            router.push('/login');
         };
         
 

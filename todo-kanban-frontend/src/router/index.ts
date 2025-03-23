@@ -6,7 +6,6 @@ import Profile from '../views/Profile.vue';
 
 
 const routes = [
-  
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/', component: Home, meta: { requiresAuth: true } },
@@ -20,13 +19,12 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-const isAuthenticated = !!localStorage.getItem('token');
-
-if (requiresAuth && !isAuthenticated){
-  next('/login');
-  }else{
-    next;
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const isAuthenticated = !!localStorage.getItem('token');
+  if (requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    next();
   }
 });
 

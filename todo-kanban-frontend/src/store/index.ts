@@ -1,5 +1,6 @@
 import { createStore } from 'vuex';
 import api from '@/services/api';
+import router from '@/router';
 
 const token = localStorage.getItem('token');
 if (token){
@@ -53,10 +54,11 @@ export default createStore({
     },
 
     async register({commit}, userData){
-      const response = await api.post('/login', userData);
+      const response = await api.post('/register', userData);
       commit ('setToken', response.data.token);
       const userResponse = await api.get('/user');
       commit ('setUser', userResponse.data);
+      router.push('/login');
     },
 
     async fetchTasks({commit}){

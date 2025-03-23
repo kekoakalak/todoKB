@@ -1,30 +1,34 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div>
+    <!-- Only display nav if showNav is true -->
+    <nav v-if="showNav" class="bg-white shadow py-4 px-6">
+      <router-link to="/" class="text-gray-600 hover:text-gray-800 mr-4">Home</router-link>
+      <router-link to="/profile" class="text-gray-600 hover:text-gray-800">Profile</router-link>
+    </nav>
+    <router-view />
+  </div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { defineComponent, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-nav {
-  padding: 30px;
-}
+export default defineComponent({
+  setup() {
+    const route = useRoute();
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+    // Hide nav if route path is '/login' or '/register'
+    const showNav = computed(() => {
+      return !['/login', '/register'].includes(route.path);
+    });
 
-nav a.router-link-exact-active {
-  color: #42b983;
-}
+    return {
+      showNav,
+    };
+  },
+});
+</script>
+
+<style scoped>
+/* Add any additional styles if needed */
 </style>
