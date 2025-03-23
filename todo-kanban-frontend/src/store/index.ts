@@ -1,9 +1,14 @@
 import { createStore } from 'vuex';
 import api from '@/services/api';
 
+const token = localStorage.getItem('token');
+if (token){
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
 export default createStore({
   state: {
-    token:  localStorage.getItem('token') || '',
+    token:  token || '',
     user:   null,
     tasks:  [],
   },
