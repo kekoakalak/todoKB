@@ -10,6 +10,12 @@
           Register
         </button>
       </form>
+      <p class="mt-4 text-center text-sm text-gray-600">
+        Already have an account?
+        <router-link to="/login" class="text-blue-500 hover:underline">
+          Login!
+        </router-link>
+      </p>
     </div>
   </div>
 </template>
