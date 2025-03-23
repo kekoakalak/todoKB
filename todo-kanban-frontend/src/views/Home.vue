@@ -26,14 +26,21 @@
             @end="handleDragEnd($event, 'todo')"
           >
             <template #item="{ element }">
-              <div
-                :data-id="element.id"
-                class="bg-blue-50 border border-blue-200 rounded p-3 mb-3 shadow-sm"
-              >
-                <div class="text-blue-800 font-medium">{{ element.title }}</div>
-                <div class="mt-2 text-sm text-gray-600">{{ element.description }}</div>
+              <div :data-id="element.id" class="bg-blue-50 border border-blue-200 rounded p-3 mb-3 shadow-sm">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-blue-800 font-medium">{{ element.title }}</div>
+                    <div class="mt-1 text-sm text-gray-600">{{ element.description }}</div>
+                  </div>
+                  <!-- Edit button floats right -->
+                  <button
+                    @click="editTask(element)"
+                    class="ml-auto text-sm text-gray-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                </div>
                 <div class="mt-3 flex space-x-2">
-                  <!-- Only Next button in To Do -->
                   <button
                     @click="updateTaskStatus(element.id, 'in_progress')"
                     class="text-sm text-blue-600 hover:underline"
@@ -61,21 +68,27 @@
             @end="handleDragEnd($event, 'in_progress')"
           >
             <template #item="{ element }">
-              <div
-                :data-id="element.id"
-                class="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3 shadow-sm"
-              >
-                <div class="text-yellow-800 font-medium">{{ element.title }}</div>
-                <div class="mt-2 text-sm text-gray-600">{{ element.description }}</div>
+              <div :data-id="element.id" class="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3 shadow-sm">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-yellow-800 font-medium">{{ element.title }}</div>
+                    <div class="mt-1 text-sm text-gray-600">{{ element.description }}</div>
+                  </div>
+                  <!-- Edit button floats right -->
+                  <button
+                    @click="editTask(element)"
+                    class="ml-auto text-sm text-gray-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                </div>
                 <div class="mt-3 flex space-x-2">
-                  <!-- Previous: Back to Todo -->
                   <button
                     @click="updateTaskStatus(element.id, 'todo')"
                     class="text-sm text-blue-600 hover:underline"
                   >
                     Previous
                   </button>
-                  <!-- Next: Move to Done -->
                   <button
                     @click="updateTaskStatus(element.id, 'done')"
                     class="text-sm text-green-600 hover:underline"
@@ -103,20 +116,10 @@
             @end="handleDragEnd($event, 'done')"
           >
             <template #item="{ element }">
-              <div
-                :data-id="element.id"
-                class="bg-green-50 border border-green-200 rounded p-3 mb-3 shadow-sm"
-              >
+              <div :data-id="element.id" class="bg-green-50 border border-green-200 rounded p-3 mb-3 shadow-sm">
                 <div class="text-green-800 font-medium">{{ element.title }}</div>
                 <div class="mt-2 text-sm text-gray-600">{{ element.description }}</div>
-                <div class="mt-3 flex space-x-2">
-                  <!-- Previous: Back to In Progress -->
-                  <button
-                    @click="updateTaskStatus(element.id, 'in_progress')"
-                    class="text-sm text-yellow-600 hover:underline"
-                  >
-                    Previous
-                  </button>
+                <div class="mt-3 flex justify-end">
                   <button
                     @click="deleteTask(element.id)"
                     class="text-sm text-red-500 hover:underline"
@@ -130,12 +133,12 @@
         </div>
       </div>
 
-      <!-- Task Creation Form -->
+      <!-- Task Creation / Update Form -->
       <div class="mt-8 bg-white p-6 rounded-lg shadow max-w-xl mx-auto">
         <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">
-          Create New Task
+          {{ isEditing ? 'Update Task' : 'Create New Task' }}
         </h3>
-        <form @submit.prevent="createTask" class="space-y-4">
+        <form @submit.prevent="submitTask" class="space-y-4">
           <div>
             <input
               v-model="newTask.title"
@@ -155,7 +158,7 @@
             type="submit"
             class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
-            Add Task
+            {{ isEditing ? 'Update Task' : 'Add Task' }}
           </button>
         </form>
       </div>
@@ -164,7 +167,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, onMounted, reactive } from 'vue';
+import { defineComponent, computed, onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import draggable from 'vuedraggable';
@@ -187,21 +190,49 @@ export default defineComponent({
       tasks.value.filter((task: any) => task.status === 'done')
     );
 
-    // Reactive new task object
+    // Reactive new task object for create/update form
     const newTask = reactive({ title: '', description: '', status: 'todo' });
+    // Track if we're editing an existing task
+    const isEditing = ref(false);
+    // Store the ID of the task being edited
+    const editingTaskId = ref<number | null>(null);
 
     // Fetch tasks on component mount
     onMounted(() => store.dispatch('fetchTasks'));
 
-    const createTask = () => {
-      store.dispatch('createTasks', { ...newTask });
+    // Submit handler for the form (create or update)
+    const submitTask = async () => {
+      if (isEditing.value && editingTaskId.value !== null) {
+        // Update the existing task
+        await store.dispatch('updateTasks', { id: editingTaskId.value, data: { title: newTask.title, description: newTask.description } });
+        // Reset editing mode
+        isEditing.value = false;
+        editingTaskId.value = null;
+      } else {
+        // Create a new task
+        await store.dispatch('createTasks', { ...newTask });
+      }
+      // Clear the form fields
       newTask.title = '';
       newTask.description = '';
+      // Re-fetch tasks for consistency
+      await store.dispatch('fetchTasks');
+    };
+
+    // Function to trigger editing a task from the card
+    const editTask = (task: any) => {
+      // Only allow editing for tasks not in Done column
+      if (task.status === 'done') return;
+      newTask.title = task.title;
+      newTask.description = task.description;
+      // Set editing mode and store the task id
+      isEditing.value = true;
+      editingTaskId.value = task.id;
     };
 
     // Optimistic update then backend sync for task status
     const updateTaskStatus = async (id: number, status: string) => {
-      // Optimistically update local state
+      // Optimistic update: update the local task immediately
       const task = tasks.value.find((t: any) => t.id === id);
       if (task) {
         task.status = status;
@@ -239,16 +270,18 @@ export default defineComponent({
       inProgressTasks,
       doneTasks,
       newTask,
-      createTask,
+      isEditing,
+      submitTask,
       updateTaskStatus,
       deleteTask,
       logout,
       handleDragEnd,
+      editTask,
     };
   },
 });
 </script>
 
 <style scoped>
-/* Additional custom styles can be added here */
+/* Additional custom styles if desired */
 </style>
