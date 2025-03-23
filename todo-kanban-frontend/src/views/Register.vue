@@ -12,4 +12,35 @@
 
   <script lang ="ts">
 
+import {defineComponent, ref} from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
+export default defineComponent({
+
+    setup(){
+        const store = useStore();
+        const router = useRouter();
+        const name = ref('');
+        const email = ref('');
+        const password = ref('');
+
+        const register = async() => {
+            await store.dispatch('register', {name: name.value, email: email.value, password: password.value});
+            router.push('/');
+        };
+        
+
+        return {
+            name,
+            email,
+            password,
+            register
+        }
+    },
+
+    
+
+});
+
 </script>
