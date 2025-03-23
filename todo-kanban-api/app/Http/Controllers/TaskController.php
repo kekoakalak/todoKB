@@ -15,7 +15,7 @@ class TaskController extends Controller
 
         $user = auth()->user();
 
-        if (!$user) {
+        if (!$user ) {
             return response()->json(['message' => 'No user logged in'], 200);
         }
 
@@ -36,9 +36,9 @@ class TaskController extends Controller
         if (!$user) {
             return response()->json(['error' => 'No users found'], 400);
         }
-        $task = $user->tasks()->create($validated); //TEMPORARY
+        // $task = $user->tasks()->create($validated); //TEMPORARY
 
-        // $task = auth()->user()->tasks()->create(attributes: $validated);
+        $task = auth()->user()->tasks()->create( $validated);
         return response()->json($task, 201); //HTTP: Successful Insert
     }
 
