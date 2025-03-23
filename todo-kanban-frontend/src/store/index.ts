@@ -18,7 +18,7 @@ export default createStore({
     setToken(state, token){
       state.token = token;
       localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = 'Bearer ${token}';
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     },
 
     setUser(state,user){
@@ -65,12 +65,12 @@ export default createStore({
     },
 
     async updateTasks({dispatch}, {id, data}){
-      await api.put('/tasks/${id}', data);
+      await api.put(`/tasks/${id}`, data);
       dispatch('fetchTasks');
     },
 
     async deleteTasks({dispatch}, id){
-      await api.delete('/tasks/$id');
+      await api.delete(`/tasks/${id}`);
       dispatch('fetchTasks');
     },
 
