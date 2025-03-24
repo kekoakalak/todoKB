@@ -16,7 +16,7 @@ class TaskController extends Controller
         $user = auth()->user();
 
         if (!$user ) {
-            return response()->json(['message' => 'No user logged in'], 200);
+            return response()->json(['error' => 'User not authenticated'], 401); // UNAUTHORIZED
         }
 
         return response()->json(auth()->user()->tasks);
